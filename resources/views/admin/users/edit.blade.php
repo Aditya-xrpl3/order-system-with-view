@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
     <div class="py-6">
-        <form action="{{ route('users.update', $user) }}" method="POST" class="max-w-md mx-auto bg-white p-6 rounded shadow">
+        <form action="{{ route('admin.users.update', $user) }}" method="POST" class="max-w-md mx-auto bg-white p-6 rounded shadow">
             @csrf
             @method('PUT')
             <div class="mb-4">

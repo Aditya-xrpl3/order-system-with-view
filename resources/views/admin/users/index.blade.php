@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
     <div class="py-6">
-        <a href="{{ route('users.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Tambah User</a>
+        <a href="{{ route('admin.users.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Tambah User</a>
         <table class="min-w-full mt-4 bg-white">
             <thead>
                 <tr>
@@ -23,8 +23,8 @@
                     <td class="border px-4 py-2">{{ $user->email }}</td>
                     <td class="border px-4 py-2">{{ $user->role }}</td>
                     <td class="border px-4 py-2">
-                        <a href="{{ route('users.edit', $user) }}" class="text-blue-600">Edit</a>
-                        <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline">
+                        <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600">Edit</a>
+                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')
                             <button class="text-red-600" onclick="return confirm('Yakin hapus user?')">Hapus</button>

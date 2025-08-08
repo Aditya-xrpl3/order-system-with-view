@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role', // Pastikan ini ada jika menggunakan relasi
     ];
 
     /**
@@ -55,5 +55,11 @@ class User extends Authenticatable
     public function cartItems()
     {
         return $this->hasMany(\App\Models\CartItem::class);
+    }
+
+    // Relasi ke Role
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
     <div class="py-6">
-        <form action="{{ route('users.store') }}" method="POST" class="max-w-md mx-auto bg-white p-6 rounded shadow">
+        <form action="{{ route('admin.users.store') }}" method="POST" class="max-w-md mx-auto bg-white p-6 rounded shadow">
             @csrf
             <div class="mb-4">
                 <label class="block">Nama</label>
@@ -41,5 +41,8 @@
             </div>
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan</button>
         </form>
+        <div class="mt-4 text-center">
+            <a href="{{ route('admin.users.index') }}" class="text-blue-500">Kembali</a>
+        </div>
     </div>
 </x-app-layout>

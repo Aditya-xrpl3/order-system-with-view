@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class OrderController extends Controller
+class UserOrderController extends Controller
 {
     public function index()
     {

@@ -7,17 +7,20 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class OderController extends Controller
+class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['items', 'table', 'user'])->get();
+        $orders = Order::with(['user', 'table'])
+                      ->latest()
+                      ->get();
 
-        // Statistik
-        $totalOrders = Order::count();
-        $completedOrders = Order::where('status', 'completed')->count();
-        $pendingOrders = Order::where('status', 'pending')->count();
-        $totalRevenue = Order::where('status', 'completed')->sum('total_price');
+        $stats = [
+            'totalOrders' => Order::count(),
+            'completedOrders' => Order::where('status', 'completed')->count(),
+            'pendingOrders' => Order::where('status', 'pending')->count(),
+            'totalRevenue' => Order::where('status', 'completed')->sum('total_price')
+        ];
 
         // Data chart: jumlah order completed per hari (7 hari terakhir)
         $completedPerDay = Order::select(
@@ -56,21 +59,44 @@ class OderController extends Controller
         }
 
         return view('cashier.orders.index', compact(
-            'orders', 'totalOrders', 'completedOrders', 'pendingOrders', 'totalRevenue',
+            'orders', 'stats',
             'dates', 'completedData', 'pendingData'
         ));
     }
 
     public function show(Order $order)
     {
-        // $this->authorize('view', $order);
-
+        $order->load(['orderItems.product', 'user', 'table']);
         return view('cashier.orders.show', compact('order'));
     }
 
     public function complete(Order $order)
     {
         $order->update(['status' => 'completed']);
-        return redirect()->route('cashier.orders.index')->with('success', 'Order completed!');
+
+        return redirect()->route('cashier.orders.index')
+                        ->with('success', 'Pesanan berhasil diselesaikan!');
+    }
+
+    public function statistics()
+    {
+        $stats = [
+            'todayRevenue' => Order::whereDate('created_at', today())
+                                  ->where('status', 'completed')
+                                  ->sum('total_price'),
+            'totalOrders' => Order::count(),
+            'averageOrder' => Order::where('status', 'completed')->avg('total_price'),
+            'topProducts' => \DB::table('order_items')
+                                ->join('products', 'order_items.product_id', '=', 'products.id')
+                                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                                ->where('orders.status', 'completed')
+                                ->select('products.name', \DB::raw('SUM(order_items.quantity) as total_sold'))
+                                ->groupBy('products.id', 'products.name')
+                                ->orderBy('total_sold', 'desc')
+                                ->take(5)
+                                ->get()
+        ];
+
+        return view('cashier.statistics', compact('stats'));
     }
 }

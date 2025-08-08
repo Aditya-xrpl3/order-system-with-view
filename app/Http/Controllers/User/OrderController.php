@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Table;
-use App\Models\Order;
-use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,19 +15,34 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('table')->where('user_id', auth()->id())->latest()->get();
-        $products = Product::all();
-        return view('user.orders.index', compact('orders', 'products'));
+        $orders = Order::where('user_id', auth()->id())
+                      ->with(['table', 'orderItems.product'])
+                      ->latest()
+                      ->get();
+
+        $products = Product::where('stock', '>', 0)->get();
+
+        $selectedTable = session('selected_table') ?
+                        Table::find(session('selected_table')) : null;
+
+        return view('user.orders.index', compact('orders', 'products', 'selectedTable'));
     }
 
-    public function create(Request $request)
+    public function show(Order $order)
     {
-        $tables = Table::all();
-        $products = Product::all();
-        $usedTableIds = Order::where('status', 'pending')->pluck('table_id')->toArray();
-        $selectedProductId = $request->query('product_id'); // ambil dari URL
+        // Pastikan user hanya bisa melihat pesanan sendiri
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
 
-        return view('user.orders.create', compact('tables', 'products', 'usedTableIds', 'selectedProductId'));
+        $order->load(['orderItems.product', 'table']);
+        return view('user.orders.show', compact('order'));
+    }
+
+    public function create()
+    {
+        $tables = Table::where('is_available', true)->get();
+        return view('user.orders.create', compact('tables'));
     }
 
     public function store(Request $request)
