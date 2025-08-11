@@ -16,15 +16,13 @@ use App\Http\Controllers\ProfileController;
 Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
-
-        // Gunakan role langsung sebagai string
-        $role = $user->role;
+        $role = $user->role ?? 'user';
 
         if ($role === 'admin') {
             return redirect('/admin/dashboard');
         } elseif ($role === 'cashier') {
             return redirect('/cashier/orders');
-        } elseif ($role === 'customer') {
+        } else {
             return redirect('/order');
         }
     }
@@ -34,19 +32,16 @@ Route::get('/', function () {
 // =================== DASHBOARD REDIRECT ===================
 Route::get('/dashboard', function () {
     $user = auth()->user();
-    $role = $user->role;
+    $role = $user->role ?? 'user';
 
     if ($role === 'admin') {
         return redirect('/admin/dashboard');
     } elseif ($role === 'cashier') {
         return redirect('/cashier/orders');
-    } elseif ($role === 'customer') {
+    } else {
         return redirect('/order');
     }
-
-    // Fallback jika role tidak dikenali
-    return redirect('/');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 // =================== PROFILE ===================
 Route::middleware('auth')->group(function () {
@@ -99,7 +94,71 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 // =================== PUBLIC ROUTES ===================
 Route::get('/tables', [TableController::class, 'index'])->name('tables.index');
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products', [ProductController::class, 'index'])
+    ->middleware(['auth']) // Hanya butuh auth, tanpa cek role
+    ->name('products.index');
 Route::get('/receipt/{order}', [ReceiptController::class, 'show'])->name('order.receipt'); // Fix nama route
+
+// Tambahkan route test sederhana untuk debugging
+Route::get('/test', function () {
+    return [
+        'status' => 'ok',
+        'user' => auth()->check() ? auth()->user()->only(['id', 'name', 'email', 'role']) : null
+    ];
+});
+
+// Route untuk halaman utama user (menu & riwayat order)
+Route::get('/order', function() {
+    $products = \App\Models\Product::all(); // Tampilkan semua produk
+    $orders = auth()->user()->orders()->latest()->get();
+    $selectedTable = session('selected_table');
+
+    return view('user.orders.index', compact('products', 'orders', 'selectedTable'));
+})->middleware(['auth'])->name('user.orders.index');
+
+// Route untuk keranjang belanja
+Route::get('/cart', [App\Http\Controllers\User\CartController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('cart.index');
+
+// Route untuk menambahkan produk ke keranjang
+Route::post('/cart/add/{product}', [App\Http\Controllers\User\CartController::class, 'add'])
+    ->middleware(['auth'])
+    ->name('cart.add');
+
+// Route untuk memperbarui item keranjang
+Route::patch('/cart/{cartItem}', [App\Http\Controllers\User\CartController::class, 'update'])
+    ->middleware(['auth'])
+    ->name('cart.update');
+
+// Route untuk menghapus item dari keranjang
+Route::delete('/cart/{cartItem}', [App\Http\Controllers\User\CartController::class, 'remove'])
+    ->middleware(['auth'])
+    ->name('cart.remove');
+
+// Route untuk checkout (membuat order baru)
+Route::post('/cart/checkout', [App\Http\Controllers\User\CartController::class, 'checkout'])
+    ->middleware(['auth'])
+    ->name('cart.checkout');
+
+// Route untuk membuat order baru (form pemesanan)
+Route::get('/order/create', [App\Http\Controllers\User\OrderController::class, 'create'])
+    ->middleware(['auth'])
+    ->name('orders.create');
+
+// Route untuk menyimpan order baru
+Route::post('/order', [App\Http\Controllers\User\OrderController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('orders.store');
+
+// Route untuk melihat detail order
+Route::get('/orders/{order}', [App\Http\Controllers\User\OrderController::class, 'show'])
+    ->middleware(['auth'])
+    ->name('orders.show');
+
+// Route untuk melihat struk/receipt
+Route::get('/receipt/{order}', [App\Http\Controllers\ReceiptController::class, 'show'])
+    ->middleware(['auth'])
+    ->name('order.receipt');
 
 require __DIR__.'/auth.php';

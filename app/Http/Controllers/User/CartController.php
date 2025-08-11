@@ -41,12 +41,19 @@ class CartController extends Controller
     public function index()
     {
         $cartItems = CartItem::where('user_id', auth()->id())
-                            ->with('product')
-                            ->get();
+            ->with('product')
+            ->get();
 
-        $tables = Table::where('is_available', true)->get();
+        // Hitung total
+        $cartTotal = 0;
+        foreach ($cartItems as $item) {
+            $cartTotal += $item->quantity * $item->product->price;
+        }
 
-        return view('user.orders.cart', compact('cartItems', 'tables'));
+        // Perbaiki tabel
+        $tables = Table::all(); // Ambil semua tabel tanpa filter
+
+        return view('user.orders.cart', compact('cartItems', 'tables', 'cartTotal'));
     }
 
     public function update(Request $request, CartItem $cartItem)

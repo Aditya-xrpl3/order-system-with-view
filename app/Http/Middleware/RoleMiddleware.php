@@ -16,9 +16,26 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check() || !in_array(Auth::user()->role, $roles)) {
-            abort(403, 'Unauthorized');
+        if (!Auth::check()) {
+            return redirect('/login');
         }
-        return $next($request);
+
+        $userRole = Auth::user()->role;
+        \Log::info("Checking role: User has {$userRole}, required: " . implode(',', $roles));
+
+        // Tangani kasus umum
+        if (in_array($userRole, $roles)) {
+            return $next($request);
+        }
+
+        // Redirect ke halaman yang sesuai dengan role
+        if ($userRole === 'admin') {
+            return redirect('/admin/dashboard');
+        } elseif ($userRole === 'cashier') {
+            return redirect('/cashier/orders');
+        } else {
+            // Default untuk role 'user'
+            return redirect('/products');
+        }
     }
 }

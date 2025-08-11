@@ -83,7 +83,8 @@ class OrderController extends Controller
             }
         });
 
-        return redirect()->route('user.order')->with('success', 'Order placed successfully.');
+        // Redirect ke halaman detail order
+        return redirect()->route('orders.show', $order);
     }
 
     public function downloadReceipt($orderId)

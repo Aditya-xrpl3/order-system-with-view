@@ -108,7 +108,7 @@
                         Aksi Cepat
                     </h3>
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="{{ route('users.create') }}"
+                        <a href="{{ route('admin.users.index') }}"
                            class="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
                             <div class="text-center">
                                 <svg class="w-8 h-8 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -163,7 +163,7 @@
 
             {{-- Management Links --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <a href="{{ route('users.index') }}"
+                <a href="{{ route('admin.users.index') }}"
                    class="block bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <div class="flex items-center justify-between">
                         <div>

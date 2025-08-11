@@ -11,11 +11,12 @@
           <ul class="space-y-4">
             @forelse($cartItems as $item)
             <li class="flex items-center gap-4">
+              {{-- Ganti tag img dengan kode ini --}}
               <img
-                src="{{ $item->product->image_url ?? 'https://via.placeholder.com/100' }}"
-                alt="{{ $item->product->name }}"
-                class="size-16 rounded-sm object-cover"
-              />
+                  src="{{ $item->product->image_url ? asset('storage/'.$item->product->image_url) : 'https://via.placeholder.com/150?text=' . urlencode($item->product->name) }}"
+                  alt="{{ $item->product->name }}"
+                  class="w-16 h-16 object-cover rounded"
+              >
 
               <div>
                 <h3 class="text-sm text-white">{{ $item->product->name }}</h3>
@@ -63,11 +64,11 @@
               <dl class="space-y-0.5 text-sm text-white">
                 <div class="flex justify-between">
                   <dt>Subtotal</dt>
-                  <dd>Rp{{ number_format($cartTotal,0,',','.') }}</dd>
+                  <dd>Rp{{ number_format($cartTotal, 0, ',', '.') }}</dd>
                 </div>
                 <div class="flex justify-between !text-base font-medium">
                   <dt>Total</dt>
-                  <dd>Rp{{ number_format($cartTotal,0,',','.') }}</dd>
+                  <dd>Rp{{ number_format($cartTotal, 0, ',', '.') }}</dd>
                 </div>
               </dl>
 
