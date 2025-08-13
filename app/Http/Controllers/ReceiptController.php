@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Receipt;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReceiptController extends Controller
 {
@@ -24,5 +25,12 @@ class ReceiptController extends Controller
     {
         $receipt->delete();
         return redirect()->route('receipts.index')->with('success', 'Receipt deleted!');
+    }
+
+    public function downloadPdf(Order $order)
+    {
+        $order->load(['orderItems.product', 'user', 'table']);
+        $pdf = Pdf::loadView('receipts.pdf', compact('order'));
+        return $pdf->download('receipt-' . $order->id . '.pdf');
     }
 }

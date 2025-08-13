@@ -1,104 +1,149 @@
 {{-- filepath: resources/views/user/orders/cart.blade.php --}}
 <x-app-layout>
-  <section>
-    <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <div class="mx-auto max-w-3xl">
-        <header class="text-center">
-          <h1 class="text-xl font-bold text-white sm:text-3xl">Keranjang Anda</h1>
-        </header>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Keranjang Anda') }}
+        </h2>
+    </x-slot>
 
-        <div class="mt-8">
-          <ul class="space-y-4">
-            @forelse($cartItems as $item)
-            <li class="flex items-center gap-4">
-              {{-- Ganti tag img dengan kode ini --}}
-              <img
-                  src="{{ $item->product->image_url ? asset('storage/'.$item->product->image_url) : 'https://via.placeholder.com/150?text=' . urlencode($item->product->name) }}"
-                  alt="{{ $item->product->name }}"
-                  class="w-16 h-16 object-cover rounded"
-              >
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if(count($cartItems) > 0)
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Cart Items -->
+                <div class="md:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Item Pesanan</h3>
 
-              <div>
-                <h3 class="text-sm text-white">{{ $item->product->name }}</h3>
-                <dl class="mt-0.5 space-y-px text-[10px] text-gray-300">
-                  <div>
-                    <dt class="inline">Harga:</dt>
-                    <dd class="inline">Rp{{ number_format($item->product->price,0,',','.') }}</dd>
-                  </div>
-                </dl>
-              </div>
+                            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach($cartItems as $item)
+                                <div class="py-4 flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+                                            <img
+                                                src="{{ $item->product->image_url ? asset('storage/'.$item->product->image_url) : 'https://via.placeholder.com/150?text=' . urlencode($item->product->name) }}"
+                                                alt="{{ $item->product->name }}"
+                                                class="w-full h-full object-cover"
+                                                onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text={{ urlencode($item->product->name) }}';"
+                                            >
+                                        </div>
+                                        <div>
+                                            <h4 class="text-md font-medium text-gray-900 dark:text-white">{{ $item->product->name }}</h4>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Rp{{ number_format($item->product->price, 0, ',', '.') }}</p>
+                                        </div>
+                                    </div>
 
-              <div class="flex flex-1 items-center justify-end gap-2">
-                <form action="{{ route('cart.update', $item) }}" method="POST">
-                  @csrf
-                  @method('PATCH')
-                  <label for="qty{{ $item->id }}" class="sr-only">Jumlah</label>
-                  <input
-                    type="number"
-                    min="1"
-                    name="quantity"
-                    value="{{ $item->quantity }}"
-                    id="qty{{ $item->id }}"
-                    class="h-8 w-12 rounded-sm border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600"
-                  />
-                </form>
-                <form action="{{ route('cart.remove', $item) }}" method="POST">
-                  @csrf
-                  @method('DELETE')
-                  <button class="text-gray-600 transition hover:text-red-600">
-                    <span class="sr-only">Remove item</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                    </svg>
-                  </button>
-                </form>
-              </div>
-            </li>
-            @empty
-            <li class="text-white text-center">Keranjang kosong.</li>
-            @endforelse
-          </ul>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex items-center border border-gray-300 dark:border-gray-600 rounded-md">
+                                            <form action="{{ route('cart.decrease', $item->product_id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                                                    -
+                                                </button>
+                                            </form>
 
-          <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-            <div class="w-screen max-w-lg space-y-4">
-              <dl class="space-y-0.5 text-sm text-white">
-                <div class="flex justify-between">
-                  <dt>Subtotal</dt>
-                  <dd>Rp{{ number_format($cartTotal, 0, ',', '.') }}</dd>
+                                            <span class="px-3 py-1 text-gray-800 dark:text-gray-200">{{ $item->quantity }}</span>
+
+                                            <form action="{{ route('cart.increase', $item->product_id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                                                    +
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div class="text-right">
+                                            <p class="font-medium text-gray-900 dark:text-white">Rp{{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</p>
+                                        </div>
+
+                                        <form action="{{ route('cart.remove', $item->product_id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="text-red-500 hover:text-red-700 focus:outline-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between !text-base font-medium">
-                  <dt>Total</dt>
-                  <dd>Rp{{ number_format($cartTotal, 0, ',', '.') }}</dd>
-                </div>
-              </dl>
 
-              <div class="flex justify-end">
-                <form action="{{ route('orders.store') }}" method="POST">
-                  @csrf
-                  {{-- Pilih meja --}}
-                  <select name="table_id" required class="mb-2 rounded bg-gray-800 text-white px-2 py-1">
-                    <option value="">-- Pilih Meja --</option>
-                    @foreach(\App\Models\Table::all() as $table)
-                      <option value="{{ $table->id }}">{{ $table->number }}</option>
-                    @endforeach
-                  </select>
-                  {{-- Kirim semua item cart --}}
-                  @foreach($cartItems as $item)
-                    <input type="hidden" name="items[{{ $loop->index }}][product_id]" value="{{ $item->product_id }}">
-                    <input type="hidden" name="items[{{ $loop->index }}][quantity]" value="{{ $item->quantity }}">
-                  @endforeach
-                  <button
-                    type="submit"
-                    class="block rounded-sm bg-blue-600 px-5 py-3 text-sm text-white transition hover:bg-blue-700 w-full"
-                  >
-                    Checkout
-                  </button>
-                </form>
-              </div>
+                <!-- Order Summary -->
+                <div>
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg sticky top-6">
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Ringkasan Pesanan</h3>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+                                    <span class="font-medium text-gray-900 dark:text-white">Rp{{ number_format($cartTotal, 0, ',', '.') }}</span>
+                                </div>
+
+                                <div class="border-t pt-3 border-gray-200 dark:border-gray-700">
+                                    <div class="flex justify-between font-medium">
+                                        <span class="text-gray-900 dark:text-white">Total</span>
+                                        <span class="text-blue-600 dark:text-blue-400 text-lg">Rp{{ number_format($cartTotal, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <label for="table" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Pilih Meja
+                                </label>
+
+                                <form action="{{ route('orders.store') }}" method="POST">
+                                    @csrf
+                                    <select name="table_id" id="table" class="w-full mb-4 rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-blue-500 dark:focus:border-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600">
+                                        @if($tables->isEmpty())
+                                            <option value="">-- Tidak ada meja tersedia --</option>
+                                        @else
+                                            @foreach($tables as $table)
+                                                <option value="{{ $table->id }}">Meja {{ $table->number }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+
+                                    <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                        Checkout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ route('menu') }}" class="flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Lanjutkan Belanja
+                        </a>
+                    </div>
+                </div>
             </div>
-          </div>
+            @else
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
+                <div class="p-12 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">Keranjang Anda kosong</h3>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">Sepertinya Anda belum menambahkan apapun ke keranjang.</p>
+                    <div class="mt-6">
+                        <a href="{{ route('menu') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 transition">
+                            Lihat Menu
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
-      </div>
     </div>
-  </section>
 </x-app-layout>

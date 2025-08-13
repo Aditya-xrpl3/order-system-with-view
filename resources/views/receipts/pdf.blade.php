@@ -5,42 +5,126 @@
     <meta charset="utf-8">
     <title>Struk Order #{{ $order->id }}</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
-        th, td { border: 1px solid #333; padding: 6px 8px; text-align: left; }
-        th { background: #eee; }
-        .total { text-align: right; font-weight: bold; }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .receipt {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ccc;
+        }
+        .header h1 {
+            font-size: 18px;
+            margin: 0 0 5px 0;
+        }
+        .header p {
+            font-size: 12px;
+            margin: 2px 0;
+        }
+        .info {
+            margin-bottom: 15px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .items th {
+            text-align: left;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .items td {
+            padding: 5px 0;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Struk Order</h2>
-        <p>No. Order: <strong>#{{ $order->id }}</strong></p>
-        <p>Tanggal: {{ $order->created_at->format('d-m-Y H:i') }}</p>
-        <p>Meja: <strong>{{ $order->table->number ?? '-' }}</strong></p>
+    <div class="receipt">
+        <div class="header">
+            <h1>{{ config('app.name', 'Restaurant') }}</h1>
+            <p>Jl. Contoh No. 123, Jakarta</p>
+            <p>Telp: 021-123456</p>
+        </div>
+
+        <div class="info">
+            <div class="info-row">
+                <span><strong>No. Order:</strong></span>
+                <span>{{ $order->id }}</span>
+            </div>
+            <div class="info-row">
+                <span><strong>Customer:</strong></span>
+                <span>{{ $order->user->name ?? 'Customer' }}</span>
+            </div>
+            <div class="info-row">
+                <span><strong>Tanggal:</strong></span>
+                <span>{{ $order->created_at->format('d-m-Y H:i') }}</span>
+            </div>
+            @if($order->table)
+            <div class="info-row">
+                <span><strong>Meja:</strong></span>
+                <span>{{ $order->table->name ?? '-' }}</span>
+            </div>
+            @endif
+        </div>
+
+        <table class="items">
+            <thead>
+                <tr>
+                    <th width="50%">Menu</th>
+                    <th width="15%">Qty</th>
+                    <th width="35%" style="text-align: right;">Harga</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->orderItems as $item)
+                <tr>
+                    <td>{{ $item->product->name }}</td>
+                    <td>{{ $item->quantity }}</td>
+                    <td style="text-align: right;">Rp{{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="total">
+            Total: Rp{{ number_format($order->total_price, 0, ',', '.') }}
+        </div>
+
+        <div class="footer">
+            <p><strong>Terima kasih atas pesanan Anda!</strong></p>
+            <p>Silakan kunjungi kami kembali</p>
+        </div>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Produk</th>
-                <th>Qty</th>
-                <th>Harga</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->items as $item)
-            <tr>
-                <td>{{ $item->product->name }}</td>
-                <td>{{ $item->quantity }}</td>
-                <td>Rp{{ number_format($item->product->price,0,',','.') }}</td>
-                <td>Rp{{ number_format($item->subtotal,0,',','.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <p class="total">Total: Rp{{ number_format($order->total_price, 0, ',', '.') }}</p>
-    <p>Terima kasih telah berbelanja!</p>
 </body>
 </html>

@@ -44,16 +44,14 @@ class CartController extends Controller
             ->with('product')
             ->get();
 
-        // Hitung total
-        $cartTotal = 0;
-        foreach ($cartItems as $item) {
-            $cartTotal += $item->quantity * $item->product->price;
-        }
+        $cartTotal = $cartItems->sum(function($item) {
+            return $item->quantity * $item->product->price;
+        });
 
-        // Perbaiki tabel
-        $tables = Table::all(); // Ambil semua tabel tanpa filter
+        // Gunakan kolom number untuk meja
+        $tables = \App\Models\Table::where('is_available', true)->get();
 
-        return view('user.orders.cart', compact('cartItems', 'tables', 'cartTotal'));
+        return view('user.orders.cart', compact('cartItems', 'cartTotal', 'tables'));
     }
 
     public function update(Request $request, CartItem $cartItem)
@@ -144,5 +142,44 @@ class CartController extends Controller
 
         return redirect()->route('orders.show', $order)
                         ->with('success', 'Pesanan berhasil dibuat!');
+    }
+
+    public function increase($productId)
+    {
+        $cartItem = CartItem::where('user_id', auth()->id())
+            ->where('product_id', $productId)
+            ->first();
+
+        if ($cartItem) {
+            $cartItem->increment('quantity');
+        }
+
+        return redirect()->route('cart.index');
+    }
+
+    public function decrease($productId)
+    {
+        $cartItem = CartItem::where('user_id', auth()->id())
+            ->where('product_id', $productId)
+            ->first();
+
+        if ($cartItem) {
+            if ($cartItem->quantity > 1) {
+                $cartItem->decrement('quantity');
+            } else {
+                $cartItem->delete();
+            }
+        }
+
+        return redirect()->route('cart.index');
+    }
+
+    public function removeByProductId($productId)
+    {
+        CartItem::where('user_id', auth()->id())
+            ->where('product_id', $productId)
+            ->delete();
+
+        return redirect()->route('cart.index');
     }
 }

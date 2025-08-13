@@ -18,7 +18,7 @@
             <div class="mb-4">
                 <strong>Item Pesanan:</strong>
                 <ul class="list-disc ml-6">
-                    @foreach($order->items as $item)
+                    @foreach($order->orderItems as $item)
                         <li>
                             {{ $item->product->name }} x {{ $item->quantity }}
                             (Rp{{ number_format($item->price * $item->quantity,0,',','.') }})

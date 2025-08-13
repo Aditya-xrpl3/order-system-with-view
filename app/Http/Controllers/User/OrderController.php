@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Table;
-use Illuminate\Http\Request;
+use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -30,7 +32,6 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        // Pastikan user hanya bisa melihat pesanan sendiri
         if ($order->user_id !== auth()->id()) {
             abort(403);
         }
@@ -54,9 +55,11 @@ class OrderController extends Controller
             'items.*.quantity' => 'required|integer|min:1'
         ]);
 
-        DB::transaction(function () use ($request) {
+        $order = DB::transaction(function () use ($request) {
             $total = 0;
             $itemsData = [];
+
+            $cartItems = CartItem::where('user_id', auth()->id())->with('product')->get();
 
             foreach ($request->items as $item) {
                 $product = Product::findOrFail($item['product_id']);
@@ -71,19 +74,24 @@ class OrderController extends Controller
             }
 
             $order = Order::create([
-                'user_id' => Auth::id(),
+                'user_id' => auth()->id(),
                 'table_id' => $request->table_id,
-                'total_price' => $total, // ubah ke total_price
                 'status' => 'pending',
+                'total_price' => $total
             ]);
 
             foreach ($itemsData as $data) {
                 $data['order_id'] = $order->id;
                 OrderItem::create($data);
             }
+
+            // Hapus item dari keranjang
+            CartItem::where('user_id', auth()->id())->delete();
+
+            return $order;
         });
 
-        // Redirect ke halaman detail order
+
         return redirect()->route('orders.show', $order);
     }
 

@@ -13,21 +13,19 @@ class Order extends Model
         'status',
     ];
 
-    // Relasi ke User
+    // Relasi ke OrderItem
+    public function orderItems()
+    {
+        return $this->hasMany(\App\Models\OrderItem::class);
+    }
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\Models\User::class);
     }
 
-    // Relasi ke Table
     public function table()
     {
-        return $this->belongsTo(Table::class);
-    }
-
-    // Relasi ke OrderItem
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class);
+        return $this->belongsTo(\App\Models\Table::class);
     }
 }

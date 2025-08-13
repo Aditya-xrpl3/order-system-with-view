@@ -85,11 +85,11 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/order/create', [UserOrderController::class, 'create'])->name('orders.create');
 
     // Cart Routes
-    Route::post('/cart/add/{product}', [UserCartController::class, 'add'])->name('cart.add'); // Fix namespace
-    Route::get('/cart', [UserCartController::class, 'index'])->name('cart.index'); // Fix namespace
-    Route::patch('/cart/{cartItem}', [UserCartController::class, 'update'])->name('cart.update'); // Fix namespace
-    Route::delete('/cart/{cartItem}', [UserCartController::class, 'remove'])->name('cart.remove'); // Fix namespace
-    Route::post('/cart/checkout', [UserCartController::class, 'checkout'])->name('cart.checkout'); // Fix namespace
+    Route::post('/cart/add/{product}', [UserCartController::class, 'add'])->name('cart.add');
+    Route::get('/cart', [UserCartController::class, 'index'])->name('cart.index');
+    Route::patch('/cart/{cartItem}', [UserCartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cartItem}', [UserCartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/checkout', [UserCartController::class, 'checkout'])->name('cart.checkout');
 });
 
 // =================== PUBLIC ROUTES ===================
@@ -98,6 +98,7 @@ Route::get('/products', [ProductController::class, 'index'])
     ->middleware(['auth']) // Hanya butuh auth, tanpa cek role
     ->name('products.index');
 Route::get('/receipt/{order}', [ReceiptController::class, 'show'])->name('order.receipt'); // Fix nama route
+Route::get('/receipt/{order}/download', [ReceiptController::class, 'downloadPdf'])->name('receipt.download');
 
 // Tambahkan route test sederhana untuk debugging
 Route::get('/test', function () {
@@ -160,5 +161,16 @@ Route::get('/orders/{order}', [App\Http\Controllers\User\OrderController::class,
 Route::get('/receipt/{order}', [App\Http\Controllers\ReceiptController::class, 'show'])
     ->middleware(['auth'])
     ->name('order.receipt');
+
+// Tambahkan atau periksa route berikut
+Route::get('/order', [App\Http\Controllers\User\UserOrderController::class, 'index'])->name('orders.index');
+
+// Route untuk menu
+Route::get('/menu', [App\Http\Controllers\User\MenuController::class, 'index'])->name('menu');
+
+// Route untuk cart increase/decrease
+Route::post('/cart/increase/{product}', [App\Http\Controllers\User\CartController::class, 'increase'])->name('cart.increase');
+Route::post('/cart/decrease/{product}', [App\Http\Controllers\User\CartController::class, 'decrease'])->name('cart.decrease');
+Route::post('/cart/remove/{product}', [App\Http\Controllers\User\CartController::class, 'remove'])->name('cart.remove');
 
 require __DIR__.'/auth.php';
