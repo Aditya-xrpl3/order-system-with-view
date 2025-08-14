@@ -48,51 +48,55 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'table_id' => 'required|exists:tables,id',
-            'items' => 'required|array',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1'
-        ]);
+        try {
+            $order = DB::transaction(function () use ($request) {
+                $total = 0;
+                $itemsData = [];
 
-        $order = DB::transaction(function () use ($request) {
-            $total = 0;
-            $itemsData = [];
+                // Jika form langsung mengirim table_id
+                $tableId = $request->table_id;
 
-            $cartItems = CartItem::where('user_id', auth()->id())->with('product')->get();
+                // Ambil items dari cart
+                $cartItems = CartItem::where('user_id', auth()->id())->with('product')->get();
 
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $subtotal = $product->price * $item['quantity'];
-                $total += $subtotal;
+                foreach ($cartItems as $item) {
+                    $subtotal = $item->product->price * $item->quantity;
+                    $total += $subtotal;
 
-                $itemsData[] = [
-                    'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'price' => $product->price,
-                ];
-            }
+                    $itemsData[] = [
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                        'price' => $item->product->price,
+                    ];
+                }
 
-            $order = Order::create([
-                'user_id' => auth()->id(),
-                'table_id' => $request->table_id,
-                'status' => 'pending',
-                'total_price' => $total
-            ]);
+                $order = Order::create([
+                    'user_id' => auth()->id(),
+                    'table_id' => $tableId,
+                    'status' => 'pending',
+                    'total_price' => $total
+                ]);
 
-            foreach ($itemsData as $data) {
-                $data['order_id'] = $order->id;
-                OrderItem::create($data);
-            }
+                foreach ($itemsData as $data) {
+                    $data['order_id'] = $order->id;
+                    OrderItem::create($data);
+                }
 
-            // Hapus item dari keranjang
-            CartItem::where('user_id', auth()->id())->delete();
+                // Hapus cart items
+                CartItem::where('user_id', auth()->id())->delete();
 
-            return $order;
-        });
+                return $order;
+            });
 
+            return redirect()->route('orders.show', $order);
 
-        return redirect()->route('orders.show', $order);
+        } catch (\Exception $e) {
+            // Log error
+            \Log::error('Checkout failed: ' . $e->getMessage());
+
+            // Redirect back dengan pesan error
+            return redirect()->back()->with('error', 'Checkout gagal: ' . $e->getMessage());
+        }
     }
 
     public function downloadReceipt($orderId)

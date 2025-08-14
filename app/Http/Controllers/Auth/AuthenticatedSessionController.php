@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
             return redirect('/order');
         }
 
-        // Fallback default
+        
         return redirect('/');
     }
 

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Menu;
-use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,16 @@ class UserOrderController extends Controller
 {
     public function index()
     {
-        $orders = \App\Models\Order::where('user_id', auth()->id())->with('table')->get();
-        return view('user.orders.index', compact('orders'));
+        // Ambil semua produk untuk ditampilkan di menu
+        $products = Product::all();
+
+        // Ambil riwayat order user yang login
+        $orders = Order::where('user_id', auth()->id())
+                     ->with(['orderItems.product', 'table'])
+                     ->orderBy('created_at', 'desc')
+                     ->get();
+
+        return view('user.orders.index', compact('products', 'orders'));
     }
 
     public function store(Request $request)

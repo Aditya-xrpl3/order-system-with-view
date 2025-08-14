@@ -1,4 +1,3 @@
-{{-- filepath: resources/views/cashier/orders/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -28,61 +27,25 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Quick Stats Cards --}}
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100">Total Order</p>
-                            <p class="text-3xl font-bold">{{ $totalOrders ?? 0 }}</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 2L3 7v11a2 2 0 002 2h10a2 2 0 002-2V7l-7-5zM10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                            </svg>
-                        </div>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-blue-500 text-white p-4 rounded-lg">
+                    <h3 class="text-lg mb-2">Total Order</h3>
+                    <p class="text-3xl font-bold">{{ $totalOrders ?? 0 }}</p>
                 </div>
 
-                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-green-100">Order Selesai</p>
-                            <p class="text-3xl font-bold">{{ $completedOrders ?? 0 }}</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                            </svg>
-                        </div>
-                    </div>
+                <div class="bg-green-500 text-white p-4 rounded-lg">
+                    <h3 class="text-lg mb-2">Order Selesai</h3>
+                    <p class="text-3xl font-bold">{{ $completedOrders ?? 0 }}</p>
                 </div>
 
-                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-yellow-100">Order Pending</p>
-                            <p class="text-3xl font-bold">{{ $pendingOrders ?? 0 }}</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
-                            </svg>
-                        </div>
-                    </div>
+                <div class="bg-yellow-500 text-white p-4 rounded-lg">
+                    <h3 class="text-lg mb-2">Order Pending</h3>
+                    <p class="text-3xl font-bold">{{ $pendingOrders ?? 0 }}</p>
                 </div>
 
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-purple-100">Total Penjualan</p>
-                            <p class="text-3xl font-bold">Rp{{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
-                            </svg>
-                        </div>
-                    </div>
+                <div class="bg-purple-500 text-white p-4 rounded-lg">
+                    <h3 class="text-lg mb-2">Total Penjualan</h3>
+                    <p class="text-3xl font-bold">Rp{{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</p>
                 </div>
             </div>
 
