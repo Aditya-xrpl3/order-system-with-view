@@ -27,12 +27,16 @@ class CartController extends Controller
                 return redirect()->back()->with('error', 'Tidak bisa menambah, stok tidak mencukupi!');
             }
             $cartItem->increment('quantity');
+                // Kurangi stok produk
+                $product->decrement('stock');
         } else {
             CartItem::create([
                 'user_id' => auth()->id(),
                 'product_id' => $product->id,
                 'quantity' => 1
             ]);
+                // Kurangi stok produk
+                $product->decrement('stock');
         }
 
         return redirect()->back()->with('success', 'Produk ditambahkan ke keranjang!');
@@ -140,8 +144,16 @@ class CartController extends Controller
         // Update status table
         Table::where('id', $request->table_id)->update(['is_available' => false]);
 
+        // Generate QR code untuk download struk
+        $receiptUrl = route('order.receipt', $order->id);
+        $qrCode = null;
+        if (class_exists('SimpleSoftwareIO\QrCode\Generator')) {
+            $qrCode = \QrCode::size(200)->generate($receiptUrl);
+        }
+
+        // Redirect ke detail order dan kirim QR code
         return redirect()->route('orders.show', $order)
-                        ->with('success', 'Pesanan berhasil dibuat!');
+                        ->with(['success' => 'Pesanan berhasil dibuat!', 'qrCode' => $qrCode, 'receiptUrl' => $receiptUrl]);
     }
 
     public function increase($productId)

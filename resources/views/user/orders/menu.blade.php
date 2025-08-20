@@ -110,7 +110,7 @@
             </div>
 
             {{-- Order History Section --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
                     <h3 class="text-xl font-bold text-gray-900 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
@@ -200,5 +200,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </x-app-layout>
