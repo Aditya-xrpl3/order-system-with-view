@@ -9,18 +9,36 @@
                 {{ __('Statistik & Laporan') }}
             </h2>
             <div class="flex items-center space-x-4">
-                <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                    <option>Hari Ini</option>
-                    <option>Minggu Ini</option>
-                    <option>Bulan Ini</option>
-                    <option>Tahun Ini</option>
+                <select id="timeframe" name="timeframe" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <option value="today">Hari Ini</option>
+                    <option value="week">Minggu Ini</option>
+                    <option value="month">Bulan Ini</option>
+                    <option value="year">Tahun Ini</option>
                 </select>
-                <button class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                <a id="exportBtn" href="{{ route('statistics.export') }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    Export
-                </button>
+                    Export Excel
+                </a>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const timeframeSelect = document.getElementById('timeframe');
+                        const exportBtn = document.getElementById('exportBtn');
+
+                        // Update export link with timeframe parameter when dropdown changes
+                        timeframeSelect.addEventListener('change', function() {
+                            const baseUrl = "{{ route('statistics.export') }}";
+                            const timeframe = timeframeSelect.value;
+                            exportBtn.href = `${baseUrl}?timeframe=${timeframe}`;
+                        });
+
+                        // Initialize with selected timeframe
+                        const timeframe = timeframeSelect.value;
+                        exportBtn.href = `{{ route('statistics.export') }}?timeframe=${timeframe}`;
+                    });
+                </script>
             </div>
         </div>
     </x-slot>
@@ -107,14 +125,63 @@
                             </span>
                         </div>
                     </div>
-                    <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                        <div class="text-center">
-                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <p class="text-gray-500">Chart akan ditampilkan di sini</p>
-                        </div>
+                    <div class="h-64 bg-gray-50 rounded-lg">
+                        <canvas id="salesChart" width="400" height="200"></canvas>
                     </div>
+
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const ctx = document.getElementById('salesChart').getContext('2d');
+
+                            // Tanggal untuk 7 hari terakhir
+                            const last7Days = [];
+                            for (let i = 6; i >= 0; i--) {
+                                const d = new Date();
+                                d.setDate(d.getDate() - i);
+                                last7Days.push(d.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'}));
+                            }
+
+                            // Data dummy - akan diganti dengan data sebenarnya dari controller
+                            const completedOrders = [4, 7, 5, 8, 10, 6, 9];
+                            const pendingOrders = [2, 1, 3, 1, 2, 4, 2];
+
+                            const salesChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: last7Days,
+                                    datasets: [
+                                        {
+                                            label: 'Completed',
+                                            data: completedOrders,
+                                            backgroundColor: 'rgba(16, 185, 129, 0.6)', // Warna hijau
+                                            borderColor: 'rgb(16, 185, 129)',
+                                            borderWidth: 1
+                                        },
+                                        {
+                                            label: 'Pending',
+                                            data: pendingOrders,
+                                            backgroundColor: 'rgba(245, 158, 11, 0.6)', // Warna oranye
+                                            borderColor: 'rgb(245, 158, 11)',
+                                            borderWidth: 1
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                precision: 0
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -174,14 +241,17 @@
                     Status Meja Hari Ini
                 </h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    @for($i = 1; $i <= 12; $i++)
-                    <div class="bg-gray-50 rounded-lg p-4 text-center {{ $i <= 6 ? 'border-2 border-green-200 bg-green-50' : 'border-2 border-gray-200' }}">
-                        <div class="text-lg font-bold {{ $i <= 6 ? 'text-green-600' : 'text-gray-400' }}">Meja {{ $i }}</div>
-                        <div class="text-xs {{ $i <= 6 ? 'text-green-500' : 'text-gray-400' }}">
-                            {{ $i <= 6 ? 'Terpakai' : 'Kosong' }}
-                        </div>
-                    </div>
-                    @endfor
+                    @foreach(\App\Models\Table::all() as $table)
+                    <form action="{{ route('tables.setEmpty', $table->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full bg-gray-50 rounded-lg p-4 text-center {{ $table->is_available ? 'border-2 border-green-200 bg-green-50 hover:bg-green-100' : 'border-2 border-gray-200 hover:bg-gray-100' }} transition-colors">
+                            <div class="text-lg font-bold {{ $table->is_available ? 'text-green-600' : 'text-gray-400' }}">Meja {{ $table->number }}</div>
+                            <div class="text-xs {{ $table->is_available ? 'text-green-500' : 'text-gray-400' }}">
+                                {{ $table->is_available ? 'Terpakai' : 'Kosong' }}
+                            </div>
+                        </button>
+                    </form>
+                    @endforeach
                 </div>
             </div>
         </div>

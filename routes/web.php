@@ -75,6 +75,7 @@ Route::middleware(['auth', 'role:cashier'])->prefix('cashier')->group(function (
     Route::get('/orders/{order}', [CashierOrderController::class, 'show'])->name('cashier.orders.show');
     Route::post('/orders/{order}/complete', [CashierOrderController::class, 'complete'])->name('orders.complete');
     Route::get('/statistics', [CashierOrderController::class, 'statistics'])->name('statistics');
+    Route::get('/statistics/export', [CashierOrderController::class, 'exportStatistics'])->name('statistics.export');
 });
 
 // =================== USER/CUSTOMER ===================
@@ -172,5 +173,8 @@ Route::get('/menu', [App\Http\Controllers\User\MenuController::class, 'index'])-
 Route::post('/cart/increase/{product}', [App\Http\Controllers\User\CartController::class, 'increase'])->name('cart.increase');
 Route::post('/cart/decrease/{product}', [App\Http\Controllers\User\CartController::class, 'decrease'])->name('cart.decrease');
 Route::post('/cart/remove/{product}', [App\Http\Controllers\User\CartController::class, 'remove'])->name('cart.remove');
+
+// Route untuk mengubah status meja
+Route::post('/tables/{table}/set-empty', [App\Http\Controllers\TableController::class, 'setEmpty'])->name('tables.setEmpty');
 
 require __DIR__.'/auth.php';

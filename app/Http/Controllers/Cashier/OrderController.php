@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Exports\OrderExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -80,5 +82,35 @@ class OrderController extends Controller
         ];
 
         return view('cashier.statistics', compact('stats'));
+    }
+
+    /**
+     * Export statistik penjualan sebagai Excel
+     */
+    public function exportStatistics(Request $request)
+    {
+        $timeframe = $request->get('timeframe', 'today');
+        $fileName = 'statistik-penjualan-' . $timeframe . '.xlsx';
+
+        // Ambil tanggal berdasarkan timeframe
+        $startDate = now();
+        $endDate = now();
+
+        switch ($timeframe) {
+            case 'week':
+                $startDate = $startDate->startOfWeek();
+                break;
+            case 'month':
+                $startDate = $startDate->startOfMonth();
+                break;
+            case 'year':
+                $startDate = $startDate->startOfYear();
+                break;
+            default:
+                $startDate = $startDate->startOfDay();
+        }
+
+        // Gunakan OrderExport untuk mengekspor data ke Excel
+        return Excel::download(new OrderExport($startDate, $endDate), $fileName);
     }
 }

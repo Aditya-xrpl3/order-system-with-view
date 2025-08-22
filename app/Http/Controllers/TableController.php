@@ -47,4 +47,13 @@ class TableController extends Controller
         $table->delete();
         return redirect()->route('tables.index')->with('success', 'Table deleted!');
     }
+
+    // Method untuk mengubah status meja menjadi kosong
+    public function setEmpty(Table $table)
+    {
+        $table->is_available = false;
+        $table->save();
+
+        return redirect()->back()->with('success', 'Status meja berhasil diubah menjadi kosong!');
+    }
 }
