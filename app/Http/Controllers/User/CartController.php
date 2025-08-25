@@ -178,8 +178,19 @@ class CartController extends Controller
         if ($cartItem) {
             if ($cartItem->quantity > 1) {
                 $cartItem->decrement('quantity');
+                return redirect()->route('cart.index');
             } else {
+                // Kalau quantity jadi 0, hapus item
                 $cartItem->delete();
+
+                // Cek apakah cart masih ada isi
+                $remainingItems = CartItem::where('user_id', auth()->id())->count();
+
+                if ($remainingItems > 0) {
+                    return redirect()->route('cart.index')->with('success', 'Item dihapus dari keranjang!');
+                } else {
+                    return redirect()->route('menu')->with('success', 'Keranjang kosong! Silakan pilih menu lain.');
+                }
             }
         }
 
@@ -192,6 +203,15 @@ class CartController extends Controller
             ->where('product_id', $productId)
             ->delete();
 
-        return redirect()->route('cart.index');
+        // Cek apakah cart masih ada isi
+        $remainingItems = CartItem::where('user_id', auth()->id())->count();
+
+        if ($remainingItems > 0) {
+            // Kalau masih ada item, tetap di cart
+            return redirect()->back()->with('success', 'Item dihapus dari keranjang!');
+        } else {
+            // Kalau cart kosong, redirect ke menu
+            return redirect()->route('menu')->with('success', 'Item dihapus dari keranjang! Silakan pilih menu lain.');
+        }
     }
 }
