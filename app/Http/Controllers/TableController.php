@@ -51,9 +51,9 @@ class TableController extends Controller
     // Method untuk mengubah status meja menjadi kosong
     public function setEmpty(Table $table)
     {
-        $table->is_available = false;
+        $table->is_available = !$table->is_available;
         $table->save();
 
-        return redirect()->back()->with('success', 'Status meja berhasil diubah menjadi kosong!');
+        return back()->with('success', 'Status meja berhasil diubah');
     }
 }

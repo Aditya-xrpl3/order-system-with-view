@@ -53,10 +53,22 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
                 <div class="px-6 py-4">
                     <div class="flex flex-wrap gap-2">
-                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">Semua</button>
-                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">Pending</button>
-                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">Selesai</button>
-                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">Hari Ini</button>
+                        <a href="{{ route('cashier.orders.index', ['filter' => 'all']) }}"
+                           class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('filter', 'all') == 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                            Semua
+                        </a>
+                        <a href="{{ route('cashier.orders.index', ['filter' => 'pending']) }}"
+                           class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('filter') == 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                            Pending
+                        </a>
+                        <a href="{{ route('cashier.orders.index', ['filter' => 'completed']) }}"
+                           class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('filter') == 'completed' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                            Selesai
+                        </a>
+                        <a href="{{ route('cashier.orders.index', ['filter' => 'today']) }}"
+                           class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('filter') == 'today' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                            Hari Ini
+                        </a>
                     </div>
                 </div>
             </div>

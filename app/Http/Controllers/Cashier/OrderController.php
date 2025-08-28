@@ -11,40 +11,41 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Filter tanggal hari ini
-        $today = Carbon::today();
+        $filter = $request->get('filter', 'all');
 
-        // Hitung total order hari ini
-        $totalOrder = Order::whereDate('created_at', $today)->count();
+        $query = Order::with(['user', 'table'])
+            ->orderBy('created_at', 'desc');
 
-        // Hitung order selesai hari ini
-        $completedOrders = Order::where('status', 'completed')
-                              ->whereDate('created_at', $today)
-                              ->count();
+        // Apply filters
+        switch ($filter) {
+            case 'pending':
+                $query->where('status', 'pending');
+                break;
+            case 'completed':
+                $query->where('status', 'completed');
+                break;
+            case 'today':
+                $query->whereDate('created_at', now()->toDateString());
+                break;
+        }
 
-        // Hitung order pending hari ini
-        $pendingOrders = Order::where('status', 'pending')
-                            ->whereDate('created_at', $today)
-                            ->count();
+        $orders = $query->get();
 
-        // Hitung total penjualan hari ini
-        $totalSales = Order::whereDate('created_at', $today)
-                         ->sum('total_price');
-
-        // Ambil semua order untuk ditampilkan di tabel
-        $orders = Order::with(['user', 'table'])
-                     ->latest()
-                     ->get();
+        // Get statistics
+        $totalOrders = Order::count();
+        $completedOrders = Order::where('status', 'completed')->count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $totalRevenue = Order::where('status', 'completed')->sum('total_price');
 
         return view('cashier.orders.index', compact(
-            'totalOrder',
+            'orders',
+            'totalOrders',
             'completedOrders',
             'pendingOrders',
-            'totalSales',
-            'orders',
-            'today'
+            'totalRevenue',
+            'filter'
         ));
     }
 

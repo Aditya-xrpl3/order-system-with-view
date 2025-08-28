@@ -37,7 +37,7 @@ class OrderController extends Controller
         }
 
         $order->load(['orderItems.product', 'table']);
-        return view('user.orders.show', compact('order'));
+        return view('receipts.show', compact('order'));
     }
 
     public function create()

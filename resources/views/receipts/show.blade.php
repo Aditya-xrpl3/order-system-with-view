@@ -28,7 +28,7 @@
                     @if($order->table)
                     <div class="flex justify-between">
                         <span class="font-medium">Meja:</span>
-                        <span>{{ $order->table->name ?? '-' }}</span>
+                        <span>{{ $order->table->number ?? '-' }}</span>
                     </div>
                     @endif
                 </div>

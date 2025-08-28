@@ -247,7 +247,7 @@
                         <button type="submit" class="w-full bg-gray-50 rounded-lg p-4 text-center {{ $table->is_available ? 'border-2 border-green-200 bg-green-50 hover:bg-green-100' : 'border-2 border-gray-200 hover:bg-gray-100' }} transition-colors">
                             <div class="text-lg font-bold {{ $table->is_available ? 'text-green-600' : 'text-gray-400' }}">Meja {{ $table->number }}</div>
                             <div class="text-xs {{ $table->is_available ? 'text-green-500' : 'text-gray-400' }}">
-                                {{ $table->is_available ? 'Terpakai' : 'Kosong' }}
+                                {{ $table->is_available ? 'Kosong' : 'Terpakai' }}
                             </div>
                         </button>
                     </form>

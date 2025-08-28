@@ -93,7 +93,7 @@
             @if($order->table)
             <div class="info-row">
                 <span><strong>Meja:</strong></span>
-                <span>{{ $order->table->name ?? '-' }}</span>
+                <span>{{ $order->table->number ?? '-' }}</span>
             </div>
             @endif
         </div>

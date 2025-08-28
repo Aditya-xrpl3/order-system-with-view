@@ -11,6 +11,7 @@ class ReceiptController extends Controller
 {
     public function show(Order $order)
     {
+        $order->load(['orderItems.product', 'user', 'table']);
         // Generate PDF/PNG receipt logic here
         return view('receipts.show', compact('order'));
     }
